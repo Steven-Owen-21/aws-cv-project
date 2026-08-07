@@ -487,7 +487,7 @@
     <!-- Tech certs - prominent -->
     <div style="font-size:0.7rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Technical Certifications</div>
     <div class="certs-grid">
-      <div class="cert-card" onclick="openLightbox('certs/cert-aws-sa-associate.png','AWS Certified Solutions Architect - Associate')" style="cursor:pointer;">
+      <div class="cert-card" onclick="openLightbox('https://images.credly.com/size/680x680/images/0e284c3f-5164-4b21-8660-0d84737941bc/image.png','AWS Certified Solutions Architect - Associate')" style="cursor:pointer;">
         <img src="https://images.credly.com/size/340x340/images/0e284c3f-5164-4b21-8660-0d84737941bc/image.png"
              alt="AWS Certified Solutions Architect - Associate badge" class="cert-badge-img" />
         <div class="cert-info">
@@ -505,17 +505,13 @@
           <span class="cert-link-label">🔗 Click to view certificate →</span>
         </div>
       </div>
-      <div class="cert-card">
+      <div class="cert-card" onclick="openLightbox('certs/cert-cyber-security.jpg','Cyber Security Level 2')" style="cursor:pointer;">
         <div class="cert-badge-img" style="display:flex;align-items:center;justify-content:center;background:rgba(79,142,247,0.08);border-radius:8px;font-size:2rem;">🔐</div>
         <div class="cert-info">
           <h4>Cyber Security Level 2</h4>
           <p>Nationally Accredited<br />Cyber Security Fundamentals</p>
-          <span class="cert-link-label">✓ Certificate held</span>
+          <span class="cert-link-label">🔗 Click to view certificate →</span>
         </div>
-        <button onclick="openLightbox('certs/cert-cyber-security.jpg','Cyber Security Level 2')"
-           style="margin-left:auto;flex-shrink:0;font-size:0.75rem;color:var(--accent);background:transparent;cursor:pointer;border:1px solid rgba(79,142,247,0.3);border-radius:6px;padding:0.3rem 0.7rem;white-space:nowrap;align-self:center;">
-          View Certificate ↗
-        </button>
       </div>
     </div>
   </div>
@@ -602,6 +598,45 @@
   <!-- Technical Projects -->
   <div class="card">
     <div class="section-title">Technical Projects</div>
+
+    <div class="entry">
+      <div class="entry-header">
+        <div class="entry-title">Event-Driven Data Platform</div>
+        <span class="entry-date">2025</span>
+      </div>
+      <div class="entry-company">Real-Time Analytics &amp; AI Query Service on AWS</div>
+      <a href="https://github.com/Steven-Owen-21/event-driven-data-platform" target="_blank" rel="noopener noreferrer" class="company-link">
+        🐙 github.com/Steven-Owen-21/event-driven-data-platform
+      </a>
+      <ul>
+        <li>Designed and built an enterprise-grade event-driven platform processing e-commerce events through EventBridge, SQS, and Lambda with schema validation and content-based routing.</li>
+        <li>Orchestrated order workflows with Step Functions (parallel processing, human approval gates, Map state, retry policies).</li>
+        <li>Built a serverless data lake (S3 Parquet, Glue crawlers, Athena) with real-time Kinesis streaming aggregations to DynamoDB.</li>
+        <li>Implemented an AI Query Service using Bedrock (Claude) with RAG pattern — natural language to SQL with retry and cost controls.</li>
+        <li>Provisioned 9 Terraform modules with least-privilege IAM, KMS encryption, and security scanning (Checkov).</li>
+        <li>Validated with 460 automated tests including 11 property-based invariants (Hypothesis). Full local dev via LocalStack — zero AWS cost.</li>
+        <li>Documented with 5 ADRs, Well-Architected Framework review, cost analysis, and Strangler Fig migration strategy.</li>
+      </ul>
+    </div>
+    <hr class="entry-divider" />
+
+    <div class="entry">
+      <div class="entry-header">
+        <div class="entry-title">Kubernetes Platform Toolkit</div>
+        <span class="entry-date">2025</span>
+      </div>
+      <div class="entry-company">Production-Grade EKS with GitOps &amp; Observability</div>
+      <a href="https://github.com/Steven-Owen-21/k8s-platform-toolkit" target="_blank" rel="noopener noreferrer" class="company-link">
+        🐙 github.com/Steven-Owen-21/k8s-platform-toolkit
+      </a>
+      <ul>
+        <li>Built EKS cluster provisioning with Terraform modules, GitOps deployment via ArgoCD, and Helm chart packaging.</li>
+        <li>Developed a Python FastAPI microservice with health checks, graceful shutdown, and container-optimised configuration.</li>
+        <li>Implemented full observability stack: Prometheus metrics, Grafana dashboards, structured logging, and alerting rules.</li>
+        <li>Validated with 98 automated tests including 5 property-based invariants. Zero-cost local development model.</li>
+      </ul>
+    </div>
+    <hr class="entry-divider" />
 
     <div class="entry">
       <div class="entry-header">
@@ -718,7 +753,9 @@
     <div class="skill-group">
       <div class="skill-group-label">Technology</div>
       <div class="skill-tags">
+        <span class="skill-tag">AWS Solutions Architect</span>
         <span class="skill-tag">AWS Cloud</span>
+        <span class="skill-tag">Terraform</span>
         <span class="skill-tag">Cyber Security L2</span>
         <span class="skill-tag">Systems Monitoring</span>
         <span class="skill-tag">Process Automation</span>
