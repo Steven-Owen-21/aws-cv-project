@@ -167,6 +167,66 @@ Resources:
 
 
   # ══════════════════════════════════════════════════════════════
+  # GITHUB ACTIONS OIDC - Deploy role (least privilege)
+  # ──────────────────────────────────────────────────────────────
+  # NOTE: These resources mirror the live github-actions-deploy role
+  # used by .github/workflows/deploy.yml. The trust policy scopes
+  # access to the main branch of the repo only, and the permissions
+  # are limited to syncing the portfolio bucket and invalidating the
+  # one CloudFront distribution. The `sub` wildcards absorb GitHub's
+  # immutable numeric owner/repo IDs without widening scope.
+  # If importing into an existing stack, the OIDC provider may
+  # already exist at the account level - import or omit as needed.
+  # ══════════════════════════════════════════════════════════════
+  GitHubOIDCProvider:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList:
+        - sts.amazonaws.com
+      ThumbprintList:
+        - 6938fd4d98bab03faadb97b34396831e3780aea1
+        - 1c58a3a8518e8759bf075b76b750d4f2df264fcd
+
+  GitHubActionsDeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: github-actions-deploy
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Ref GitHubOIDCProvider
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              StringLike:
+                token.actions.githubusercontent.com:sub: 'repo:Steven-Owen-21*/aws-cv-project*:ref:refs/heads/main'
+      Policies:
+        - PolicyName: portfolio-deploy-least-privilege
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: ListPortfolioBucket
+                Effect: Allow
+                Action: s3:ListBucket
+                Resource: 'arn:aws:s3:::steven-owen-portfolio'
+              - Sid: ManagePortfolioObjects
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource: 'arn:aws:s3:::steven-owen-portfolio/*'
+              - Sid: InvalidatePortfolioDistribution
+                Effect: Allow
+                Action: cloudfront:CreateInvalidation
+                Resource: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/E1G1JJUVZZ7A7V'
+
+
+  # ══════════════════════════════════════════════════════════════
   # LAMBDA - Visitor Counter Function
   # ══════════════════════════════════════════════════════════════
   VisitorCounterFunction:
@@ -221,10 +281,34 @@ Resources:
 
           def lambda_handler(event, context):
               try:
+                  # Handle OPTIONS preflight (CORS)
+                  method = event.get('requestContext', {}).get('http', {}).get('method', '')
+                  if method == 'OPTIONS':
+                      return {
+                          'statusCode': 200,
+                          'headers': {
+                              'Access-Control-Allow-Origin': 'https://stevenowenaws.com',
+                              'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                              'Access-Control-Allow-Headers': 'content-type'
+                          },
+                          'body': ''
+                      }
+
                   body = json.loads(event.get('body', '{}'))
-                  name = body.get('name', 'Unknown')
-                  email = body.get('email', 'Unknown')
-                  message = body.get('message', 'No message')
+                  name = body.get('name', '').strip()
+                  email = body.get('email', '').strip()
+                  message = body.get('message', '').strip()
+
+                  # Don't send if fields are empty
+                  if not name or not email or not message:
+                      return {
+                          'statusCode': 400,
+                          'headers': {
+                              'Content-Type': 'application/json',
+                              'Access-Control-Allow-Origin': 'https://stevenowenaws.com'
+                          },
+                          'body': json.dumps({'error': 'All fields are required'})
+                      }
 
                   if len(name) > 100 or len(email) > 150 or len(message) > 2000:
                       return {
@@ -237,7 +321,7 @@ Resources:
                       }
 
                   ses.send_email(
-                      Source='stevenowen2110@outlook.com',
+                      Source='contact@stevenowenaws.com',
                       Destination={'ToAddresses': ['stevenowen2110@outlook.com']},
                       Message={
                           'Subject': {'Data': f'Portfolio Contact: {name}'},
@@ -357,3 +441,7 @@ Outputs:
   ApiEndpoint:
     Description: API Gateway endpoint URL
     Value: !Sub 'https://${PortfolioApi}.execute-api.${AWS::Region}.amazonaws.com'
+
+  GitHubActionsDeployRoleArn:
+    Description: IAM role assumed by GitHub Actions via OIDC for deployment
+    Value: !GetAtt GitHubActionsDeployRole.Arn
